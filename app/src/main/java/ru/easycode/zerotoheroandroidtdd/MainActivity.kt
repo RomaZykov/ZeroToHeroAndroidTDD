@@ -1,10 +1,13 @@
 package ru.easycode.zerotoheroandroidtdd
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -20,15 +23,11 @@ import java.io.IOException
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var counterTv: TextView
-    private lateinit var incrementButton: Button
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        counterTv = findViewById<TextView>(R.id.countTextView)
+        val title = findViewById<TextView>(R.id.titleTextView)
         lifecycleScope.launch {
             dataStore.data
                 .catch { exception ->
@@ -38,53 +37,34 @@ class MainActivity : AppCompatActivity() {
                         throw exception
                     }
                 }.map { preferences ->
-                    val counter = preferences[PreferencesKeys.COUNTER] ?: 0
-                    val isEnable = preferences[PreferencesKeys.ENABLE] ?: true
-                    MainPage(counter, isEnable)
+                    val currentTitle = preferences[PreferencesKeys.CURRENT_TITLE] ?: "Hello World!"
+                    val titleVisibility = preferences[PreferencesKeys.TITLE_VISIBILITY] ?: true
+                    MainPage(currentTitle, titleVisibility)
                 }.first {
-                    counterTv.text = it.counter.toString()
-                    incrementButton.isEnabled = it.isEnable
+                    title.text = it.savedTitle
+                    title.visibility = if (it.titleVisibility) View.VISIBLE else View.GONE
                     true
                 }
         }
 
-        incrementButton = findViewById<Button>(R.id.incrementButton)
-        incrementButton.setOnClickListener {
-            counterTv.text = Count.Base(2).increment(counterTv.text.toString())
-            incrementButton.isEnabled = Count.Base(2).isOverlap(counterTv.text.toString())
+        val button = findViewById<Button>(R.id.changeButton)
+        button.setOnClickListener {
+            title.text = "I am an Android Developer!"
             lifecycleScope.launch {
                 dataStore.edit { preferences ->
-                    preferences[PreferencesKeys.COUNTER] = counterTv.text.toString().toInt()
-                    preferences[PreferencesKeys.ENABLE] = counterTv.text.toString().toInt() < 5
+                    preferences[PreferencesKeys.CURRENT_TITLE] = title.text.toString()
                 }
             }
         }
-    }
-}
 
-interface Count {
-
-    fun increment(number: String): String
-    fun isOverlap(number: String): Boolean
-    class Base(private val step: Int) : Count {
-
-        private var counter = 0 + step
-
-        init {
-            if (step < 1)
-                throw IllegalStateException("step should be positive, but was $step")
-        }
-
-        override fun isOverlap(number: String): Boolean {
-            return counter < 4
-        }
-
-        override fun increment(number: String): String {
-            counter += number.toInt()
-            if (counter > 4) {
-                return number
+        val hideButton = findViewById<Button>(R.id.hideButton)
+        hideButton.setOnClickListener {
+            title.visibility = View.GONE
+            lifecycleScope.launch {
+                dataStore.edit { preferences ->
+                    preferences[PreferencesKeys.TITLE_VISIBILITY] = title.isVisible
+                }
             }
-            return counter.toString()
         }
     }
 }

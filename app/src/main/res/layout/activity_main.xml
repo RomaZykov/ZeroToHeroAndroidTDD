@@ -8,26 +8,29 @@
 
     <LinearLayout
         android:id="@+id/rootLayout"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/countTextView"
+            android:id="@+id/titleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="Hello world!"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/incrementButton"
+            android:id="@+id/hideButton"
+            android:text="hide"
             android:layout_width="match_parent"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="increment"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/changeButton"
+            android:layout_width="match_parent"
+            android:text="change"
             android:layout_height="wrap_content" />
     </LinearLayout>
 

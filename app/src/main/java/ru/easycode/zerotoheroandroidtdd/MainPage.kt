@@ -1,3 +1,5 @@
 package ru.easycode.zerotoheroandroidtdd
 
-data class MainPage(val counter: Int, val isEnable: Boolean)
+import androidx.transition.Visibility
+
+data class MainPage(val savedTitle: String, val titleVisibility: Boolean)
