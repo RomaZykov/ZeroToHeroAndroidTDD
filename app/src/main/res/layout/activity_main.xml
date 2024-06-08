@@ -23,6 +23,11 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
+            android:id="@+id/hideButton"
+            android:text="hide"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <Button
             android:id="@+id/changeButton"
             android:layout_width="match_parent"
             android:text="change"

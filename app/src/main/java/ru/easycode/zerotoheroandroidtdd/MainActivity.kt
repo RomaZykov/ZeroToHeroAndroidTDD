@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -36,9 +38,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 }.map { preferences ->
                     val currentTitle = preferences[PreferencesKeys.CURRENT_TITLE] ?: "Hello World!"
-                    MainPage(currentTitle)
+                    val titleVisibility = preferences[PreferencesKeys.TITLE_VISIBILITY] ?: true
+                    MainPage(currentTitle, titleVisibility)
                 }.first {
                     title.text = it.savedTitle
+                    title.visibility = if (it.titleVisibility) View.VISIBLE else View.GONE
                     true
                 }
         }
@@ -49,6 +53,16 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 dataStore.edit { preferences ->
                     preferences[PreferencesKeys.CURRENT_TITLE] = title.text.toString()
+                }
+            }
+        }
+
+        val hideButton = findViewById<Button>(R.id.hideButton)
+        hideButton.setOnClickListener {
+            title.visibility = View.GONE
+            lifecycleScope.launch {
+                dataStore.edit { preferences ->
+                    preferences[PreferencesKeys.TITLE_VISIBILITY] = title.isVisible
                 }
             }
         }
