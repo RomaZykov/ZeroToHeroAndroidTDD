@@ -1,5 +1,3 @@
 package ru.easycode.zerotoheroandroidtdd
 
-import androidx.transition.Visibility
-
-data class MainPage(val savedTitle: String, val titleVisibility: Boolean)
+data class MainPage(val savedTitle: String, val titleVisibility: Boolean, val titleShouldExist: Boolean)
