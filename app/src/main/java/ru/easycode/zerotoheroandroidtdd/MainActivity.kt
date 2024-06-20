@@ -3,10 +3,11 @@ package ru.easycode.zerotoheroandroidtdd
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.contains
 import androidx.core.view.isVisible
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -23,9 +24,11 @@ import java.io.IOException
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val linearLayout = findViewById<LinearLayout>(R.id.rootLayout)
 
         val title = findViewById<TextView>(R.id.titleTextView)
         lifecycleScope.launch {
@@ -39,30 +42,23 @@ class MainActivity : AppCompatActivity() {
                 }.map { preferences ->
                     val currentTitle = preferences[PreferencesKeys.CURRENT_TITLE] ?: "Hello World!"
                     val titleVisibility = preferences[PreferencesKeys.TITLE_VISIBILITY] ?: true
-                    MainPage(currentTitle, titleVisibility)
+                    val titleExist =
+                        preferences[PreferencesKeys.TITLE_EXIST] ?: linearLayout.contains(title)
+                    MainPage(currentTitle, titleVisibility, titleExist)
                 }.first {
                     title.text = it.savedTitle
                     title.visibility = if (it.titleVisibility) View.VISIBLE else View.GONE
+                    if (!it.titleShouldExist) linearLayout.removeView(title)
                     true
                 }
         }
 
-        val button = findViewById<Button>(R.id.changeButton)
-        button.setOnClickListener {
-            title.text = "I am an Android Developer!"
+        val removeButton = findViewById<Button>(R.id.removeButton)
+        removeButton.setOnClickListener {
+            linearLayout.removeView(title)
             lifecycleScope.launch {
                 dataStore.edit { preferences ->
-                    preferences[PreferencesKeys.CURRENT_TITLE] = title.text.toString()
-                }
-            }
-        }
-
-        val hideButton = findViewById<Button>(R.id.hideButton)
-        hideButton.setOnClickListener {
-            title.visibility = View.GONE
-            lifecycleScope.launch {
-                dataStore.edit { preferences ->
-                    preferences[PreferencesKeys.TITLE_VISIBILITY] = title.isVisible
+                    preferences[PreferencesKeys.TITLE_EXIST] = linearLayout.contains(title)
                 }
             }
         }
