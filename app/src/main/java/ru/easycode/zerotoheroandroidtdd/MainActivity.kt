@@ -1,14 +1,10 @@
 package ru.easycode.zerotoheroandroidtdd
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.contains
-import androidx.core.view.isVisible
+import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -25,12 +21,14 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var counterTv: TextView
+    private lateinit var incrementButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val linearLayout = findViewById<LinearLayout>(R.id.rootLayout)
 
-        val title = findViewById<TextView>(R.id.titleTextView)
+        counterTv = findViewById<TextView>(R.id.countTextView)
         lifecycleScope.launch {
             dataStore.data
                 .catch { exception ->
@@ -40,27 +38,43 @@ class MainActivity : AppCompatActivity() {
                         throw exception
                     }
                 }.map { preferences ->
-                    val currentTitle = preferences[PreferencesKeys.CURRENT_TITLE] ?: "Hello World!"
-                    val titleVisibility = preferences[PreferencesKeys.TITLE_VISIBILITY] ?: true
-                    val titleExist =
-                        preferences[PreferencesKeys.TITLE_EXIST] ?: linearLayout.contains(title)
-                    MainPage(currentTitle, titleVisibility, titleExist)
+                    val counter = preferences[PreferencesKeys.COUNTER] ?: 0
+                    MainPage(counter)
                 }.first {
-                    title.text = it.savedTitle
-                    title.visibility = if (it.titleVisibility) View.VISIBLE else View.GONE
-                    if (!it.titleShouldExist) linearLayout.removeView(title)
+                    counterTv.text = it.counter.toString()
                     true
                 }
         }
 
-        val removeButton = findViewById<Button>(R.id.removeButton)
-        removeButton.setOnClickListener {
-            linearLayout.removeView(title)
+        var counter = counterTv.text.toString().toInt()
+        incrementButton = findViewById<Button>(R.id.incrementButton)
+        incrementButton.setOnClickListener {
+            counter += 2
+            counterTv.text = Count.Base(2).increment(counterTv.text.toString())
             lifecycleScope.launch {
                 dataStore.edit { preferences ->
-                    preferences[PreferencesKeys.TITLE_EXIST] = linearLayout.contains(title)
+                    preferences[PreferencesKeys.COUNTER] = counter
                 }
             }
+        }
+    }
+}
+
+interface Count {
+
+    fun increment(number: String): String
+    class Base(private val step: Int) : Count {
+
+        private var counter = 0 + step
+
+        init {
+            if (step < 1)
+                throw IllegalStateException("step should be positive, but was $step")
+        }
+
+        override fun increment(number: String): String {
+            counter += number.toInt()
+            return counter.toString()
         }
     }
 }
