@@ -39,21 +39,23 @@ class MainActivity : AppCompatActivity() {
                     }
                 }.map { preferences ->
                     val counter = preferences[PreferencesKeys.COUNTER] ?: 0
-                    MainPage(counter)
+                    val isEnable = preferences[PreferencesKeys.ENABLE] ?: true
+                    MainPage(counter, isEnable)
                 }.first {
                     counterTv.text = it.counter.toString()
+                    incrementButton.isEnabled = it.isEnable
                     true
                 }
         }
 
-        var counter = counterTv.text.toString().toInt()
         incrementButton = findViewById<Button>(R.id.incrementButton)
         incrementButton.setOnClickListener {
-            counter += 2
             counterTv.text = Count.Base(2).increment(counterTv.text.toString())
+            incrementButton.isEnabled = Count.Base(2).isOverlap(counterTv.text.toString())
             lifecycleScope.launch {
                 dataStore.edit { preferences ->
-                    preferences[PreferencesKeys.COUNTER] = counter
+                    preferences[PreferencesKeys.COUNTER] = counterTv.text.toString().toInt()
+                    preferences[PreferencesKeys.ENABLE] = counterTv.text.toString().toInt() < 5
                 }
             }
         }
@@ -63,6 +65,7 @@ class MainActivity : AppCompatActivity() {
 interface Count {
 
     fun increment(number: String): String
+    fun isOverlap(number: String): Boolean
     class Base(private val step: Int) : Count {
 
         private var counter = 0 + step
@@ -72,8 +75,15 @@ interface Count {
                 throw IllegalStateException("step should be positive, but was $step")
         }
 
+        override fun isOverlap(number: String): Boolean {
+            return counter < 4
+        }
+
         override fun increment(number: String): String {
             counter += number.toInt()
+            if (counter > 4) {
+                return number
+            }
             return counter.toString()
         }
     }
