@@ -1,14 +1,10 @@
 package ru.easycode.zerotoheroandroidtdd
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.contains
-import androidx.core.view.isVisible
+import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -32,7 +28,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        counterTv = findViewById<TextView>(R.id.titleTextView)
+        counterTv = findViewById<TextView>(R.id.countTextView)
+        incrementButton = findViewById<Button>(R.id.incrementButton)
         lifecycleScope.launch {
             dataStore.data
                 .catch { exception ->
@@ -77,18 +74,18 @@ interface Count {
         init {
             if (step < 1)
                 throw IllegalStateException("step should be positive, but was $step")
-            if (step < 1)
-                throw IllegalStateException("step should be positive, but was $step")
-            if (step < 1)
-                throw IllegalStateException("step should be positive, but was $step")
-            if (step < 1)
-                throw IllegalStateException("step should be positive, but was $step")
+            if (max < 0)
+                throw IllegalStateException("max should be positive, but was $max")
+            if (max == 0)
+                throw IllegalStateException()
+            if (step > max)
+                throw IllegalStateException("max should be more than step")
         }
 
         override fun increment(number: String): UiState {
             counter += number.toInt()
-            if (counter >= max || counter + step >= max) {
-                val currentMax = if (counter + step > max) counter - step else number.toInt()
+            if (counter >= max || counter + step > max) {
+                val currentMax = if (counter + step > max) counter else counter - step
                 return UiState.Max(currentMax.toString())
             }
             return UiState.Base(counter.toString())
@@ -100,13 +97,13 @@ interface UiState {
 
     fun apply(textView: TextView, button: Button)
 
-    class Base(private val text: String) : UiState {
+    data class Base(private val text: String) : UiState {
         override fun apply(textView: TextView, button: Button) {
             textView.text = text
         }
     }
 
-    class Max(private val text: String) : UiState {
+    data class Max(private val text: String) : UiState {
         override fun apply(textView: TextView, button: Button) {
             textView.text = text
             button.isEnabled = false
