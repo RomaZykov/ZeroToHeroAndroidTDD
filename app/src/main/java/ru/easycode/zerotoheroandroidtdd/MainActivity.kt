@@ -25,12 +25,14 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var counterTv: TextView
+    private lateinit var incrementButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val linearLayout = findViewById<LinearLayout>(R.id.rootLayout)
 
-        val title = findViewById<TextView>(R.id.titleTextView)
+        counterTv = findViewById<TextView>(R.id.titleTextView)
         lifecycleScope.launch {
             dataStore.data
                 .catch { exception ->
@@ -40,27 +42,74 @@ class MainActivity : AppCompatActivity() {
                         throw exception
                     }
                 }.map { preferences ->
-                    val currentTitle = preferences[PreferencesKeys.CURRENT_TITLE] ?: "Hello World!"
-                    val titleVisibility = preferences[PreferencesKeys.TITLE_VISIBILITY] ?: true
-                    val titleExist =
-                        preferences[PreferencesKeys.TITLE_EXIST] ?: linearLayout.contains(title)
-                    MainPage(currentTitle, titleVisibility, titleExist)
+                    val counterTv =
+                        preferences[PreferencesKeys.COUNTER] ?: "0"
+                    val isEnabled =
+                        preferences[PreferencesKeys.IS_ENABLED] ?: true
+                    MainPage(counterTv, isEnabled)
                 }.first {
-                    title.text = it.savedTitle
-                    title.visibility = if (it.titleVisibility) View.VISIBLE else View.GONE
-                    if (!it.titleShouldExist) linearLayout.removeView(title)
+                    counterTv.text = it.text
+                    incrementButton.isEnabled = it.isEnabled
                     true
                 }
         }
 
-        val removeButton = findViewById<Button>(R.id.removeButton)
-        removeButton.setOnClickListener {
-            linearLayout.removeView(title)
+        incrementButton.setOnClickListener {
+            Count.Base(2, 4).increment(counterTv.text.toString()).apply(counterTv, incrementButton)
             lifecycleScope.launch {
                 dataStore.edit { preferences ->
-                    preferences[PreferencesKeys.TITLE_EXIST] = linearLayout.contains(title)
+                    preferences[PreferencesKeys.COUNTER] = counterTv.text.toString()
+                    preferences[PreferencesKeys.IS_ENABLED] = incrementButton.isEnabled
                 }
             }
+        }
+    }
+}
+
+interface Count {
+
+    fun increment(number: String): UiState
+
+    class Base(private val step: Int, private val max: Int) : Count {
+
+        private var counter = step
+
+        init {
+            if (step < 1)
+                throw IllegalStateException("step should be positive, but was $step")
+            if (step < 1)
+                throw IllegalStateException("step should be positive, but was $step")
+            if (step < 1)
+                throw IllegalStateException("step should be positive, but was $step")
+            if (step < 1)
+                throw IllegalStateException("step should be positive, but was $step")
+        }
+
+        override fun increment(number: String): UiState {
+            counter += number.toInt()
+            if (counter >= max || counter + step >= max) {
+                val currentMax = if (counter + step > max) counter - step else number.toInt()
+                return UiState.Max(currentMax.toString())
+            }
+            return UiState.Base(counter.toString())
+        }
+    }
+}
+
+interface UiState {
+
+    fun apply(textView: TextView, button: Button)
+
+    class Base(private val text: String) : UiState {
+        override fun apply(textView: TextView, button: Button) {
+            textView.text = text
+        }
+    }
+
+    class Max(private val text: String) : UiState {
+        override fun apply(textView: TextView, button: Button) {
+            textView.text = text
+            button.isEnabled = false
         }
     }
 }
