@@ -5,5 +5,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 
 object PreferencesKeys {
     val COUNTER = stringPreferencesKey("counter")
-    val IS_ENABLED = booleanPreferencesKey("is_enabled")
+    val IS_INC_ENABLED = booleanPreferencesKey("is_inc_enabled")
+    val IS_DEC_ENABLED = booleanPreferencesKey("is_dec_enabled")
 }

@@ -1,14 +1,10 @@
 package ru.easycode.zerotoheroandroidtdd
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.view.contains
-import androidx.core.view.isVisible
+import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -27,12 +23,17 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var counterTv: TextView
     private lateinit var incrementButton: Button
+    private lateinit var decrementButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        counterTv = findViewById<TextView>(R.id.titleTextView)
+        counterTv = findViewById<TextView>(R.id.countTextView)
+        incrementButton = findViewById<Button>(R.id.incrementButton)
+        decrementButton = findViewById<Button>(R.id.decrementButton)
+        val state = Count.Base(2, 4, 2)
+        state.initial(counterTv.text.toString()).apply(counterTv, incrementButton, decrementButton)
         lifecycleScope.launch {
             dataStore.data
                 .catch { exception ->
@@ -44,22 +45,39 @@ class MainActivity : AppCompatActivity() {
                 }.map { preferences ->
                     val counterTv =
                         preferences[PreferencesKeys.COUNTER] ?: "0"
-                    val isEnabled =
-                        preferences[PreferencesKeys.IS_ENABLED] ?: true
-                    MainPage(counterTv, isEnabled)
+                    val isIncEnabled =
+                        preferences[PreferencesKeys.IS_INC_ENABLED] ?: true
+                    val isDecEnabled =
+                        preferences[PreferencesKeys.IS_DEC_ENABLED] ?: true
+                    MainPage(counterTv, isIncEnabled, isDecEnabled)
                 }.first {
                     counterTv.text = it.text
-                    incrementButton.isEnabled = it.isEnabled
+                    incrementButton.isEnabled = it.isIncrementEnabled
+                    decrementButton.isEnabled = it.isDecrementEnabled
                     true
                 }
         }
 
         incrementButton.setOnClickListener {
-            Count.Base(2, 4).increment(counterTv.text.toString()).apply(counterTv, incrementButton)
+            state.increment(counterTv.text.toString())
+                .apply(counterTv, incrementButton, decrementButton)
             lifecycleScope.launch {
                 dataStore.edit { preferences ->
                     preferences[PreferencesKeys.COUNTER] = counterTv.text.toString()
-                    preferences[PreferencesKeys.IS_ENABLED] = incrementButton.isEnabled
+                    preferences[PreferencesKeys.IS_INC_ENABLED] = incrementButton.isEnabled
+                    preferences[PreferencesKeys.IS_DEC_ENABLED] = decrementButton.isEnabled
+                }
+            }
+        }
+
+        decrementButton.setOnClickListener {
+            state.decrement(counterTv.text.toString())
+                .apply(counterTv, incrementButton, decrementButton)
+            lifecycleScope.launch {
+                dataStore.edit { preferences ->
+                    preferences[PreferencesKeys.COUNTER] = counterTv.text.toString()
+                    preferences[PreferencesKeys.IS_INC_ENABLED] = incrementButton.isEnabled
+                    preferences[PreferencesKeys.IS_DEC_ENABLED] = decrementButton.isEnabled
                 }
             }
         }
@@ -68,27 +86,50 @@ class MainActivity : AppCompatActivity() {
 
 interface Count {
 
+    fun initial(number: String): UiState
+
     fun increment(number: String): UiState
 
-    class Base(private val step: Int, private val max: Int) : Count {
+    fun decrement(number: String): UiState
+
+    class Base(private val step: Int, private val max: Int, private val min: Int) : Count {
 
         private var counter = step
 
         init {
             if (step < 1)
                 throw IllegalStateException("step should be positive, but was $step")
-            if (step < 1)
-                throw IllegalStateException("step should be positive, but was $step")
-            if (step < 1)
-                throw IllegalStateException("step should be positive, but was $step")
-            if (step < 1)
-                throw IllegalStateException("step should be positive, but was $step")
+            if (max < 0)
+                throw IllegalStateException("max should be positive, but was $max")
+            if (max == 0)
+                throw IllegalStateException()
+            if (step > max)
+                throw IllegalStateException("max should be more than step")
+        }
+
+        override fun initial(number: String): UiState {
+            return if (number <= min.toString()) {
+                UiState.Min(min.toString())
+            } else if (number >= max.toString()) {
+                UiState.Max(number)
+            } else {
+                UiState.Base(number)
+            }
+        }
+
+        override fun decrement(number: String): UiState {
+            counter -= number.toInt()
+            if (counter < min || counter - step < min) {
+                val currentMin = if (counter - step < min) min else counter
+                return UiState.Min(currentMin.toString())
+            }
+            return UiState.Base(counter.toString())
         }
 
         override fun increment(number: String): UiState {
             counter += number.toInt()
-            if (counter >= max || counter + step >= max) {
-                val currentMax = if (counter + step > max) counter - step else number.toInt()
+            if (counter >= max || counter + step > max) {
+                val currentMax = if (counter + step > max) counter else counter - step
                 return UiState.Max(currentMax.toString())
             }
             return UiState.Base(counter.toString())
@@ -98,18 +139,27 @@ interface Count {
 
 interface UiState {
 
-    fun apply(textView: TextView, button: Button)
+    fun apply(textView: TextView, incButton: Button, decButton: Button)
 
-    class Base(private val text: String) : UiState {
-        override fun apply(textView: TextView, button: Button) {
+    data class Base(private val text: String) : UiState {
+        override fun apply(textView: TextView, incButton: Button, decButton: Button) {
             textView.text = text
         }
     }
 
-    class Max(private val text: String) : UiState {
-        override fun apply(textView: TextView, button: Button) {
+    data class Max(private val text: String) : UiState {
+        override fun apply(textView: TextView, incButton: Button, decButton: Button) {
             textView.text = text
-            button.isEnabled = false
+            incButton.isEnabled = false
+            decButton.isEnabled = true
+        }
+    }
+
+    data class Min(private val text: String) : UiState {
+        override fun apply(textView: TextView, incButton: Button, decButton: Button) {
+            textView.text = text
+            incButton.isEnabled = true
+            decButton.isEnabled = false
         }
     }
 }

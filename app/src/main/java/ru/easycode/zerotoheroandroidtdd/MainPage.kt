@@ -1,3 +1,3 @@
 package ru.easycode.zerotoheroandroidtdd
 
-data class MainPage(val text: String, val isEnabled: Boolean)
+data class MainPage(val text: String, val isIncrementEnabled: Boolean, val isDecrementEnabled: Boolean)
