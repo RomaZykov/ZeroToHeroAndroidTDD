@@ -29,11 +29,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        counterTv = findViewById<TextView>(R.id.countTextView)
-        incrementButton = findViewById<Button>(R.id.incrementButton)
-        decrementButton = findViewById<Button>(R.id.decrementButton)
-        val state = Count.Base(2, 4, 2)
+        counterTv = findViewById(R.id.countTextView)
+        decrementButton = findViewById(R.id.decrementButton)
+        incrementButton = findViewById(R.id.incrementButton)
+
+        val state = Count.Base(2, 4, 0)
         state.initial(counterTv.text.toString()).apply(counterTv, incrementButton, decrementButton)
+
         lifecycleScope.launch {
             dataStore.data
                 .catch { exception ->
@@ -44,11 +46,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 }.map { preferences ->
                     val counterTv =
-                        preferences[PreferencesKeys.COUNTER] ?: "0"
+                        preferences[PreferencesKeys.COUNTER] ?: counterTv.text.toString()
                     val isIncEnabled =
-                        preferences[PreferencesKeys.IS_INC_ENABLED] ?: true
+                        preferences[PreferencesKeys.IS_INC_ENABLED] ?: incrementButton.isEnabled
                     val isDecEnabled =
-                        preferences[PreferencesKeys.IS_DEC_ENABLED] ?: true
+                        preferences[PreferencesKeys.IS_DEC_ENABLED] ?: decrementButton.isEnabled
                     MainPage(counterTv, isIncEnabled, isDecEnabled)
                 }.first {
                     counterTv.text = it.text
@@ -61,105 +63,23 @@ class MainActivity : AppCompatActivity() {
         incrementButton.setOnClickListener {
             state.increment(counterTv.text.toString())
                 .apply(counterTv, incrementButton, decrementButton)
-            lifecycleScope.launch {
-                dataStore.edit { preferences ->
-                    preferences[PreferencesKeys.COUNTER] = counterTv.text.toString()
-                    preferences[PreferencesKeys.IS_INC_ENABLED] = incrementButton.isEnabled
-                    preferences[PreferencesKeys.IS_DEC_ENABLED] = decrementButton.isEnabled
-                }
-            }
+            saveToDataStore()
         }
 
         decrementButton.setOnClickListener {
             state.decrement(counterTv.text.toString())
                 .apply(counterTv, incrementButton, decrementButton)
-            lifecycleScope.launch {
-                dataStore.edit { preferences ->
-                    preferences[PreferencesKeys.COUNTER] = counterTv.text.toString()
-                    preferences[PreferencesKeys.IS_INC_ENABLED] = incrementButton.isEnabled
-                    preferences[PreferencesKeys.IS_DEC_ENABLED] = decrementButton.isEnabled
-                }
-            }
-        }
-    }
-}
-
-interface Count {
-
-    fun initial(number: String): UiState
-
-    fun increment(number: String): UiState
-
-    fun decrement(number: String): UiState
-
-    class Base(private val step: Int, private val max: Int, private val min: Int) : Count {
-
-        private var counter = step
-
-        init {
-            if (step < 1)
-                throw IllegalStateException("step should be positive, but was $step")
-            if (max < 0)
-                throw IllegalStateException("max should be positive, but was $max")
-            if (max == 0)
-                throw IllegalStateException()
-            if (step > max)
-                throw IllegalStateException("max should be more than step")
-        }
-
-        override fun initial(number: String): UiState {
-            return if (number <= min.toString()) {
-                UiState.Min(min.toString())
-            } else if (number >= max.toString()) {
-                UiState.Max(number)
-            } else {
-                UiState.Base(number)
-            }
-        }
-
-        override fun decrement(number: String): UiState {
-            counter -= number.toInt()
-            if (counter < min || counter - step < min) {
-                val currentMin = if (counter - step < min) min else counter
-                return UiState.Min(currentMin.toString())
-            }
-            return UiState.Base(counter.toString())
-        }
-
-        override fun increment(number: String): UiState {
-            counter += number.toInt()
-            if (counter >= max || counter + step > max) {
-                val currentMax = if (counter + step > max) counter else counter - step
-                return UiState.Max(currentMax.toString())
-            }
-            return UiState.Base(counter.toString())
-        }
-    }
-}
-
-interface UiState {
-
-    fun apply(textView: TextView, incButton: Button, decButton: Button)
-
-    data class Base(private val text: String) : UiState {
-        override fun apply(textView: TextView, incButton: Button, decButton: Button) {
-            textView.text = text
+            saveToDataStore()
         }
     }
 
-    data class Max(private val text: String) : UiState {
-        override fun apply(textView: TextView, incButton: Button, decButton: Button) {
-            textView.text = text
-            incButton.isEnabled = false
-            decButton.isEnabled = true
-        }
-    }
-
-    data class Min(private val text: String) : UiState {
-        override fun apply(textView: TextView, incButton: Button, decButton: Button) {
-            textView.text = text
-            incButton.isEnabled = true
-            decButton.isEnabled = false
+    private fun saveToDataStore() {
+        lifecycleScope.launch {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.COUNTER] = counterTv.text.toString()
+                preferences[PreferencesKeys.IS_INC_ENABLED] = incrementButton.isEnabled
+                preferences[PreferencesKeys.IS_DEC_ENABLED] = decrementButton.isEnabled
+            }
         }
     }
 }
