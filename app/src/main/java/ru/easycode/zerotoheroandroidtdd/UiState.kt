@@ -10,6 +10,8 @@ interface UiState {
     data class Base(private val text: String) : UiState {
         override fun apply(textView: TextView, incButton: Button, decButton: Button) {
             textView.text = text
+            incButton.isEnabled = true
+            decButton.isEnabled = true
         }
     }
 
@@ -17,12 +19,14 @@ interface UiState {
         override fun apply(textView: TextView, incButton: Button, decButton: Button) {
             textView.text = text
             incButton.isEnabled = false
+            decButton.isEnabled = true
         }
     }
 
     data class Min(private val text: String) : UiState {
         override fun apply(textView: TextView, incButton: Button, decButton: Button) {
             textView.text = text
+            incButton.isEnabled = true
             decButton.isEnabled = false
         }
     }
