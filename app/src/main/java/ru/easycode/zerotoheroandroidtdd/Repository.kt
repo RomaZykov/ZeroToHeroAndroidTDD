@@ -1,7 +1,9 @@
 package ru.easycode.zerotoheroandroidtdd
 
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import java.security.PrivateKey
 
 interface Repository {
 
@@ -10,9 +12,7 @@ interface Repository {
     class Base() : Repository {
 
         override suspend fun load() {
-            withTimeout(3500) {
-                delay(3000)
-            }
+            delay(3500)
         }
     }
 }

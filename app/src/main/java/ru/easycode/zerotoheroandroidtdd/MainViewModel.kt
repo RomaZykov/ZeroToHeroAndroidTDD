@@ -11,6 +11,8 @@ class MainViewModel(
     private val repository: Repository
 ): ViewModel() {
 
+    fun liveData() = liveDataWrapper.liveData()
+
     fun load() {
         liveDataWrapper.update(UiState.ShowProgress)
         viewModelScope.launch {

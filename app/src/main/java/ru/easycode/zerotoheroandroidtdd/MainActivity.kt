@@ -14,12 +14,10 @@ import kotlinx.coroutines.withTimeout
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var uiState: UiState
-
     private lateinit var textView: TextView
     private lateinit var progress: ProgressBar
     private lateinit var actionButton: Button
-    private lateinit var viewModel: MainViewModel
+    private val viewModel = MainViewModel(LiveDataWrapper.Base(), Repository.Base())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,12 +27,12 @@ class MainActivity : AppCompatActivity() {
         progress = findViewById(R.id.progressBar)
         actionButton = findViewById(R.id.actionButton)
 
-        val repository = Repository.Base()
-        val liveDataWrapper = LiveDataWrapper.Base(textView, progress, actionButton)
-        viewModel = MainViewModel(liveDataWrapper, repository)
-
         actionButton.setOnClickListener {
             viewModel.load()
+        }
+
+        viewModel.liveData().observe(this) { uiState ->
+            uiState.apply(textView, progress, actionButton)
         }
     }
 }

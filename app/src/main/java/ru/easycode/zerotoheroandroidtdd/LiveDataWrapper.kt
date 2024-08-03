@@ -12,16 +12,11 @@ interface LiveDataWrapper {
 
     fun liveData(): LiveData<UiState>
 
-    class Base(
-        private val textView: TextView,
-        private val progressBar: ProgressBar,
-        private val actionButton: Button
-    ) : LiveDataWrapper {
+    class Base : LiveDataWrapper {
         private val _uiState = MutableLiveData<UiState>()
 
         override fun update(value: UiState) {
             _uiState.value = value
-            _uiState.value?.apply(textView, progressBar, actionButton)
         }
 
         override fun liveData(): LiveData<UiState> {
