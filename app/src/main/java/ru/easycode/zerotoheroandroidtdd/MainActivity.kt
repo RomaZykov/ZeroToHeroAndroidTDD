@@ -14,8 +14,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var editText: TextInputEditText
     private lateinit var actionButton: Button
 
-    private var text = ""
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -24,20 +22,8 @@ class MainActivity : AppCompatActivity() {
         editText = findViewById(R.id.inputEditText)
         actionButton = findViewById(R.id.actionButton)
 
-        editText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-            override fun afterTextChanged(inputText: Editable?) {
-                text = inputText.toString()
-            }
-        })
-
         actionButton.setOnClickListener {
-            textView.text = text
+            textView.text = editText.text.toString()
             editText.text?.clear()
         }
     }
