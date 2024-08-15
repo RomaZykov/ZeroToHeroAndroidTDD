@@ -1,9 +1,7 @@
-package ru.easycode.zerotoheroandroidtdd
+package ru.easycode.zerotoheroandroidtdd.core
 
-import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import ru.easycode.zerotoheroandroidtdd.create.CreateFragment
 import ru.easycode.zerotoheroandroidtdd.list.ListFragment
 
 interface Screen {
@@ -21,6 +19,6 @@ interface Screen {
         }
     }
 
-    object Pop : Screen.Replace(ListFragment())
+    object Pop : Replace(ListFragment())
 }
 

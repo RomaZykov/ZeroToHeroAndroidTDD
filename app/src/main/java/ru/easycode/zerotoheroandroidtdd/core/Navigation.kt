@@ -1,11 +1,6 @@
 package ru.easycode.zerotoheroandroidtdd.core
 
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import ru.easycode.zerotoheroandroidtdd.MainActivity
-import ru.easycode.zerotoheroandroidtdd.R
-import ru.easycode.zerotoheroandroidtdd.Screen
 
 interface Navigation {
 

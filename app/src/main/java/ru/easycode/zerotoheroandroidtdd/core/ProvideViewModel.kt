@@ -12,7 +12,7 @@ import java.lang.IllegalStateException
 interface ProvideViewModel {
     fun <T : ViewModel> viewModel(viewModelClass: Class<T>): T
 
-    class Base(private val liveDataWrapper: ListLiveDataWrapper.All) : ProvideViewModel {
+    class Base(private val liveDataWrapper: ListLiveDataWrapper.All, private val clear: ClearViewModel) : ProvideViewModel {
 
         // Warning use only one instance
         private val navigation = Navigation.Base()
@@ -24,7 +24,7 @@ interface ProvideViewModel {
                 }
 
                 CreateViewModel::class.java -> {
-                    CreateViewModel(liveDataWrapper, navigation, ClearViewModel.Base())
+                    CreateViewModel(liveDataWrapper, navigation, clear)
                 }
 
                 ListViewModel::class.java -> {

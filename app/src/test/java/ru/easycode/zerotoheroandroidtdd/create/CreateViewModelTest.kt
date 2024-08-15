@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import ru.easycode.zerotoheroandroidtdd.Screen
+import ru.easycode.zerotoheroandroidtdd.core.Screen
 import ru.easycode.zerotoheroandroidtdd.core.ClearViewModel
 import ru.easycode.zerotoheroandroidtdd.core.ListLiveDataWrapper
 import ru.easycode.zerotoheroandroidtdd.list.FakeListLiveDataWrapper

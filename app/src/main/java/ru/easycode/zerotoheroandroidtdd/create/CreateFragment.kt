@@ -8,14 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import ru.easycode.zerotoheroandroidtdd.App
-import ru.easycode.zerotoheroandroidtdd.R
-import ru.easycode.zerotoheroandroidtdd.Screen
 import ru.easycode.zerotoheroandroidtdd.core.ProvideViewModel
 import ru.easycode.zerotoheroandroidtdd.databinding.CreateListLayoutBinding
-import ru.easycode.zerotoheroandroidtdd.databinding.ListLayoutBinding
-import ru.easycode.zerotoheroandroidtdd.main.MainViewModel
 
 class CreateFragment : Fragment() {
 

@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.easycode.zerotoheroandroidtdd.core.ClearViewModel
 import ru.easycode.zerotoheroandroidtdd.core.ListLiveDataWrapper
 import ru.easycode.zerotoheroandroidtdd.core.Navigation
 import ru.easycode.zerotoheroandroidtdd.core.ProvideViewModel
@@ -18,11 +19,16 @@ import ru.easycode.zerotoheroandroidtdd.main.MainViewModel
 class App : Application(), ProvideViewModel {
 
     private lateinit var factory: ViewModelFactory
+    private val clear: ClearViewModel = object : ClearViewModel {
+        override fun clear(viewModelClass: Class<out ViewModel>) {
+            factory.clear(viewModelClass)
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
         factory = ViewModelFactory.Base(
-            provideViewModel = ProvideViewModel.Base(ListLiveDataWrapper.Base())
+            provideViewModel = ProvideViewModel.Base(ListLiveDataWrapper.Base(), clear)
         )
     }
 
