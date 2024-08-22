@@ -1,10 +1,10 @@
 package ru.easycode.zerotoheroandroidtdd.presentation.main
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.easycode.zerotoheroandroidtdd.core.ListLiveDataWrapper
 import ru.easycode.zerotoheroandroidtdd.data.Repository
 
@@ -18,13 +18,11 @@ class MainViewModel(
     fun liveData() = liveDataWrapper.liveData()
 
     fun init() {
-        CoroutineScope(dispatcherMain).launch {
-            val result = mutableListOf<String>()
-            CoroutineScope(dispatcher).launch {
-                result.addAll(repository.list())
-            }.join()
-
-            liveDataWrapper.update(result)
+        viewModelScope.launch(dispatcher) {
+            val value = repository.list()
+            withContext(dispatcherMain) {
+                liveDataWrapper.update(value)
+            }
         }
     }
 }
