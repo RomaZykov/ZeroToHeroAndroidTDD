@@ -6,7 +6,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import ru.easycode.zerotoheroandroidtdd.core.ProvideViewModel
@@ -16,6 +15,7 @@ class AddFragment : Fragment() {
 
     private lateinit var binding: FragmentAddBinding
     private lateinit var viewModel: AddViewModel
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,26 +31,14 @@ class AddFragment : Fragment() {
 
         viewModel = (requireActivity() as ProvideViewModel).viewModel(AddViewModel::class.java)
 
-        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
-            override fun handleOnBackCancelled() {
-                super.handleOnBackCancelled()
-            }
-
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 requireActivity().supportFragmentManager.beginTransaction()
                     .remove(this@AddFragment)
                     .commit()
                 viewModel.comeback()
             }
-
-            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
-                super.handleOnBackProgressed(backEvent)
-            }
-
-            override fun handleOnBackStarted(backEvent: BackEventCompat) {
-                super.handleOnBackStarted(backEvent)
-            }
-        })
+        }
 
         binding.addInputEditText.addTextChangedListener(object : SimpleTextWatcher() {
             override fun afterTextChanged(s: Editable?) {

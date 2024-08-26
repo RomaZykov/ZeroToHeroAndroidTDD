@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import ru.easycode.zerotoheroandroidtdd.core.ProvideViewModel
@@ -14,6 +13,7 @@ class DeleteFragment : Fragment() {
 
     private lateinit var binding: FragmentDeleteBinding
     private lateinit var viewModel: DeleteViewModel
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,26 +30,14 @@ class DeleteFragment : Fragment() {
         viewModel = (requireActivity() as ProvideViewModel).viewModel(DeleteViewModel::class.java)
         val args = requireArguments().getLong("item_id")
 
-        requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
-            override fun handleOnBackCancelled() {
-                super.handleOnBackCancelled()
-            }
-
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 requireActivity().supportFragmentManager.beginTransaction()
                     .remove(this@DeleteFragment)
                     .commit()
                 viewModel.comeback()
             }
-
-            override fun handleOnBackProgressed(backEvent: BackEventCompat) {
-                super.handleOnBackProgressed(backEvent)
-            }
-
-            override fun handleOnBackStarted(backEvent: BackEventCompat) {
-                super.handleOnBackStarted(backEvent)
-            }
-        })
+        }
 
         viewModel.init(args)
 
