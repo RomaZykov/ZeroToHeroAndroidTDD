@@ -11,6 +11,10 @@ import ru.easycode.zerotoheroandroidtdd.FakeListLiveDataWrapper.Companion.LIVE_D
 import ru.easycode.zerotoheroandroidtdd.FakeListLiveDataWrapper.Companion.LIVE_DATA_UPDATE
 import ru.easycode.zerotoheroandroidtdd.FakeRepositoryChange.Companion.REPOSITORY_DELETE
 import ru.easycode.zerotoheroandroidtdd.FakeRepositoryChange.Companion.REPOSITORY_UPDATE
+import ru.easycode.zerotoheroandroidtdd.data.Item
+import ru.easycode.zerotoheroandroidtdd.data.Repository
+import ru.easycode.zerotoheroandroidtdd.presentation.ItemUi
+import ru.easycode.zerotoheroandroidtdd.presentation.delete.DetailsViewModel
 
 class DetailsViewModelTest {
 
