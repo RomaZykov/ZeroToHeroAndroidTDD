@@ -44,6 +44,7 @@ class DetailsFragment : Fragment() {
         viewModel.liveData.observe(viewLifecycleOwner) {
             binding.itemTextView.text = it
             binding.itemInputEditText.setText(it)
+            binding.itemInputEditText.setSelection(it.length)
         }
 
         binding.updateButton.setOnClickListener {
