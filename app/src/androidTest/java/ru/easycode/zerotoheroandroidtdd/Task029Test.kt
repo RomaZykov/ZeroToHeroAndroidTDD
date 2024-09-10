@@ -45,10 +45,11 @@ class Task029Test {
 
         createNotePage.clickSaveButton()
         createNotePage.checkNotVisibleNow()
-        folderDetailsPage.checkVisibleNow(title = "first folder", count = "1")
         folderDetailsPage.checkNote(position = 0, title = "note 1 in folder 1")
+        folderDetailsPage.checkVisibleNow(title = "first folder", count = "1")
 
         Espresso.pressBack()
+        folderDetailsPage.checkNotVisibleNow()
         foldersListPage.checkVisibleNow()
         foldersListPage.checkFolder(position = 0, title = "first folder", count = "1")
     }

@@ -18,6 +18,7 @@ interface FakeClear : ClearViewModels {
         override fun clear(vararg viewModelClasses: Class<out ViewModel>) {
             order.add(CLEAR)
             actual.addAll(viewModelClasses)
+            order.add(CLEAR)
         }
 
         override fun check(expected: List<Class<out ViewModel>>) {
