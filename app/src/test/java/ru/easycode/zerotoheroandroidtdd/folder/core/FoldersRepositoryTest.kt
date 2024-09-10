@@ -3,7 +3,10 @@ package ru.easycode.zerotoheroandroidtdd.folder.core
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import ru.easycode.zerotoheroandroidtdd.note.core.FakeNotesDao
+import ru.easycode.zerotoheroandroidtdd.core.Now
+import ru.easycode.zerotoheroandroidtdd.folder.data.Folder
+import ru.easycode.zerotoheroandroidtdd.folder.data.FoldersDao
+import ru.easycode.zerotoheroandroidtdd.folder.data.cache.FolderCache
 
 class FoldersRepositoryTest {
 
@@ -11,11 +14,9 @@ class FoldersRepositoryTest {
     fun test() = runBlocking {
         val now = FakeNow.Base(7L)
         val foldersDao = FakeFoldersDao.Base()
-        val notesDao = FakeNotesDao.Base()
         val repository = FoldersRepository.Base(
             now = now,
-            foldersDao = foldersDao,
-            notesDao = notesDao
+            foldersDao = foldersDao
         )
 
         val firstFolderId = repository.createFolder(name = "first")
@@ -52,7 +53,7 @@ interface FakeNow : Now {
     }
 }
 
-private interface FakeFoldersDao : FoldersDao {
+interface FakeFoldersDao : FoldersDao {
 
     class Base : FakeFoldersDao {
 

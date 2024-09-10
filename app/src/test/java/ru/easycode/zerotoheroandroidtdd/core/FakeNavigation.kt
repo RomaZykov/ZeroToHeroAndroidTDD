@@ -1,5 +1,7 @@
 package ru.easycode.zerotoheroandroidtdd.core
 
+import junit.framework.TestCase.assertEquals
+
 interface FakeNavigation : Navigation.Update {
 
     companion object {
@@ -10,15 +12,15 @@ interface FakeNavigation : Navigation.Update {
 
     class Base(private val order: Order) : FakeNavigation {
 
-        private lateinit var actual: Screen
+        private val actual = mutableListOf<Screen>()
 
         override fun update(screen: Screen) {
-            actual = screen
+            actual.add(screen)
             order.add(NAVIGATE)
         }
 
         override fun checkScreen(expected: Screen) {
-            assertEquals(expected, actual)
+            assertEquals(expected, actual.last())
         }
     }
 }

@@ -3,10 +3,10 @@ package ru.easycode.zerotoheroandroidtdd
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import ru.easycode.zerotoheroandroidtdd.main.MainActivity
 
 @RunWith(AndroidJUnit4::class)
 class Task029Test {

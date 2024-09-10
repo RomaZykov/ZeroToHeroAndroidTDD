@@ -10,6 +10,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import ru.easycode.zerotoheroandroidtdd.folder.data.FoldersDao
+import ru.easycode.zerotoheroandroidtdd.folder.data.cache.FolderCache
+import ru.easycode.zerotoheroandroidtdd.main.AppDataBase
+import ru.easycode.zerotoheroandroidtdd.note.data.NotesDao
+import ru.easycode.zerotoheroandroidtdd.note.data.cache.NoteCache
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
@@ -37,23 +42,23 @@ class RoomTest {
 
     @Test
     fun test_folders() = runBlocking {
-        foldersDao.insert(folder = FolderCache(id = 1L, text = "first folder"))
-        foldersDao.insert(folder = FolderCache(id = 2L, text = "second folder"))
+        foldersDao.insert(folder = FolderCache(id = 1L, text = "first folder", notesCount = 0))
+        foldersDao.insert(folder = FolderCache(id = 2L, text = "second folder", notesCount = 0))
 
         val initialActual = foldersDao.folders()
         val initialExpected = listOf(
-            FolderCache(id = 1L, text = "first folder"),
-            FolderCache(id = 2L, text = "second folder")
+            FolderCache(id = 1L, text = "first folder", notesCount = 0),
+            FolderCache(id = 2L, text = "second folder", notesCount = 0)
         )
         assertEquals(initialExpected, initialActual)
 
-        foldersDao.insert(folder = FolderCache(id = 1L, text = "renamed folder 1"))
+        foldersDao.insert(folder = FolderCache(id = 1L, text = "renamed folder 1", notesCount = 0))
 
         foldersDao.delete(folderId = 2L)
 
         val finalActual = foldersDao.folders()
         val finalExpected = listOf(
-            FolderCache(id = 1L, text = "renamed folder 1"),
+            FolderCache(id = 1L, text = "renamed folder 1", notesCount = 0),
         )
         assertEquals(finalExpected, finalActual)
     }

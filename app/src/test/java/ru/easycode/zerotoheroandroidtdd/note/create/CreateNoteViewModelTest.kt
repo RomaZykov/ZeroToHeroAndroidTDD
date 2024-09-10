@@ -9,7 +9,11 @@ import ru.easycode.zerotoheroandroidtdd.core.FakeClear.Companion.CLEAR
 import ru.easycode.zerotoheroandroidtdd.core.FakeNavigation
 import ru.easycode.zerotoheroandroidtdd.core.FakeNavigation.Companion.NAVIGATE
 import ru.easycode.zerotoheroandroidtdd.core.Order
+import ru.easycode.zerotoheroandroidtdd.core.Screen
+import ru.easycode.zerotoheroandroidtdd.note.NoteUi
+import ru.easycode.zerotoheroandroidtdd.note.core.NoteListLiveDataWrapper
 import ru.easycode.zerotoheroandroidtdd.note.core.NotesRepository
+import ru.easycode.zerotoheroandroidtdd.note.data.MyNote
 
 class CreateNoteViewModelTest {
 
@@ -23,10 +27,13 @@ class CreateNoteViewModelTest {
     @Before
     fun setup() {
         order = Order()
+        clear = FakeClear.Base(order)
         repository = FakeCreateNoteRepository.Base(order, 101)
         addLiveDataWrapper = FakeAddNoteLiveDataWrapper.Base(order)
+        navigation = FakeNoteNavigation.Base(order)
         viewModel = CreateNoteViewModel(
             addLiveDataWrapper = addLiveDataWrapper,
+            repository = repository,
             navigation = navigation,
             clear = clear,
             dispatcher = Dispatchers.Unconfined,
@@ -53,7 +60,6 @@ class CreateNoteViewModelTest {
         navigation.checkScreen(Screen.Pop)
         order.check(listOf(CLEAR, NAVIGATE))
     }
-
 }
 
 private const val NOTE_LIVEDATA_ADD = "NoteListLiveDataWrapper.Create#"
@@ -92,9 +98,27 @@ private interface FakeCreateNoteRepository : NotesRepository.Create {
             assertEquals(text, actualText)
         }
 
-        override suspend fun createNote(folderId: Long, text: String): Long {
+        override suspend fun createNote(folderId: Long, text: String): MyNote {
             order.add(CREATE_NOTE_REPOSITORY)
+            actualFolderId = folderId
+            actualText = text
             return MyNote(id = noteId++, title = text, folderId = folderId)
+        }
+    }
+}
+
+private interface FakeNoteNavigation : FakeNavigation {
+    class Base(private val order: Order) : FakeNoteNavigation {
+
+        private lateinit var actual: Screen
+
+        override fun checkScreen(expected: Screen) {
+            assertEquals(expected, actual)
+        }
+
+        override fun update(list: Screen) {
+            actual = list
+            order.add(NAVIGATE)
         }
     }
 }

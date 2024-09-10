@@ -16,7 +16,7 @@ interface FakeClear : ClearViewModels {
         private val actual = mutableListOf<Class<out ViewModel>>()
 
         override fun clear(vararg viewModelClasses: Class<out ViewModel>) {
-            actual.clear()
+            order.add(CLEAR)
             actual.addAll(viewModelClasses)
         }
 

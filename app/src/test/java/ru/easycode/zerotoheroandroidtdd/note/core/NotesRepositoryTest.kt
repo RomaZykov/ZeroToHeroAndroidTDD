@@ -1,19 +1,25 @@
 package ru.easycode.zerotoheroandroidtdd.note.core
 
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
+import ru.easycode.zerotoheroandroidtdd.folder.core.FakeFoldersDao
 import ru.easycode.zerotoheroandroidtdd.folder.core.FakeNow
+import ru.easycode.zerotoheroandroidtdd.note.data.MyNote
+import ru.easycode.zerotoheroandroidtdd.note.data.NotesDao
+import ru.easycode.zerotoheroandroidtdd.note.data.cache.NoteCache
 
 class NotesRepositoryTest {
 
     @Test
     fun test() = runBlocking {
         val now = FakeNow.Base(15L)
-        val dao = FakeNotesDao.Base()
+        val notesDao = FakeNotesDao.Base()
+        val foldersDao = FakeFoldersDao.Base()
         val repository = NotesRepository.Base(
             now = now,
-            dao = dao
+            notesDao = notesDao,
+            foldersDao = foldersDao
         )
 
         repository.createNote(folderId = 1L, text = "first note")

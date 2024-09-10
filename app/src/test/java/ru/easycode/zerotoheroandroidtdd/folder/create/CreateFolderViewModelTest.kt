@@ -9,6 +9,9 @@ import ru.easycode.zerotoheroandroidtdd.core.FakeClear.Companion.CLEAR
 import ru.easycode.zerotoheroandroidtdd.core.FakeNavigation
 import ru.easycode.zerotoheroandroidtdd.core.FakeNavigation.Companion.NAVIGATE
 import ru.easycode.zerotoheroandroidtdd.core.Order
+import ru.easycode.zerotoheroandroidtdd.core.Screen
+import ru.easycode.zerotoheroandroidtdd.folder.FolderUi
+import ru.easycode.zerotoheroandroidtdd.folder.core.FolderListLiveDataWrapper
 import ru.easycode.zerotoheroandroidtdd.folder.core.FoldersRepository
 
 class CreateFolderViewModelTest {
@@ -30,8 +33,10 @@ class CreateFolderViewModelTest {
         viewModel = CreateFolderViewModel(
             repository = repository,
             navigation = navigation,
+            clearViewModels = clear,
+            liveDataWrapper = liveDataWrapper,
             dispatcher = Dispatchers.Unconfined,
-            disatcherMain = Dispatchers.Unconfined
+            dispatcherMain = Dispatchers.Unconfined
         )
     }
 
@@ -41,8 +46,8 @@ class CreateFolderViewModelTest {
 
         repository.checkCreate("some folder name")
         liveDataWrapper.check(FolderUi(id = 45678, title = "some folder name", notesCount = 0))
-        navigation.checkScreen(Screen.Pop)
         clear.check(listOf(CreateFolderViewModel::class.java))
+        navigation.checkScreen(Screen.Pop)
 
         order.check(listOf(REPOSITORY_CREATE, LIVEDATA_CREATE, CLEAR, NAVIGATE))
     }

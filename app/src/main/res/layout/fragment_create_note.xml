@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/createNoteRootLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/createNoteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Input note" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/createNoteEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/saveNoteButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="save" />
+    </LinearLayout>
+</layout>

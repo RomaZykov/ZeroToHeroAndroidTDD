@@ -1,5 +1,6 @@
 package ru.easycode.zerotoheroandroidtdd.folder.details
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -9,7 +10,14 @@ import ru.easycode.zerotoheroandroidtdd.core.FakeClear.Companion.CLEAR
 import ru.easycode.zerotoheroandroidtdd.core.FakeNavigation
 import ru.easycode.zerotoheroandroidtdd.core.FakeNavigation.Companion.NAVIGATE
 import ru.easycode.zerotoheroandroidtdd.core.Order
+import ru.easycode.zerotoheroandroidtdd.core.Screen
+import ru.easycode.zerotoheroandroidtdd.folder.edit.EditFolderScreen
+import ru.easycode.zerotoheroandroidtdd.note.NoteUi
+import ru.easycode.zerotoheroandroidtdd.note.core.NoteListLiveDataWrapper
 import ru.easycode.zerotoheroandroidtdd.note.core.NotesRepository
+import ru.easycode.zerotoheroandroidtdd.note.create.CreateNoteScreen
+import ru.easycode.zerotoheroandroidtdd.note.data.MyNote
+import ru.easycode.zerotoheroandroidtdd.note.edit.EditNoteScreen
 
 class FolderDetailsViewModelTest {
 
@@ -31,9 +39,10 @@ class FolderDetailsViewModelTest {
         navigation = FakeNavigation.Base(order)
         viewModel = FolderDetailsViewModel(
             noteListRepository = noteListRepository,
-            liveDataWrapper = noteListLiveDataWrapper,
+            noteLiveDataWrapper = noteListLiveDataWrapper,
             folderLiveDataWrapper = folderLiveDataWrapper,
             navigation = navigation,
+            clear = clear,
             dispatcher = Dispatchers.Unconfined,
             dispatcherMain = Dispatchers.Unconfined
         )
@@ -57,27 +66,27 @@ class FolderDetailsViewModelTest {
         )
         noteListRepository.checkFolderId(7L)
 
-        order.check(listOf(NOTES_REPOSITORY_READ, UPDATE_NOTES_LIVEDATA))
+        order.check(listOf(READ_NOTES_REPOSITORY, UPDATE_NOTES_LIVEDATA))
     }
 
     @Test
     fun test_create_note() {
-        viewModel.createNote()
+        viewModel.createNote(folderId = 9L)
         navigation.checkScreen(CreateNoteScreen(folderId = 9L))
         order.check(listOf(NAVIGATE))
     }
 
     @Test
     fun test_edit_note() {
-        viewModel.editNote()
-        navigation.checkScreen(EditNoteScreen(folderId = 9L))
+        viewModel.editNote(folderId = 9L, 1L, "note 1")
+        navigation.checkScreen(EditNoteScreen(folderId = 9L, 1L, "note 1"))
         order.check(listOf(NAVIGATE))
     }
 
     @Test
     fun test_edit_folder() {
-        viewModel.editFolder()
-        navigation.checkScreen(EditFolderScreen(folderId = 9L))
+        viewModel.editFolder(folderId = 9L, "first folder")
+        navigation.checkScreen(EditFolderScreen(folderId = 9L, "first folder"))
         order.check(listOf(NAVIGATE))
     }
 
@@ -90,7 +99,7 @@ class FolderDetailsViewModelTest {
     }
 }
 
-private const val NOTES_REPOSITORY_READ = "NotesRepository.ReadList#noteList"
+private const val READ_NOTES_REPOSITORY = "NotesRepository.ReadList#noteList"
 private const val UPDATE_NOTES_LIVEDATA = "NoteListLiveDataWrapper.UpdateListAndRead#update"
 
 private interface FakeNoteListRepository : NotesRepository.ReadList {
@@ -112,7 +121,7 @@ private interface FakeNoteListRepository : NotesRepository.ReadList {
 
         override suspend fun noteList(folderId: Long): List<MyNote> {
             actualFolderId = folderId
-            order.add(NOTES_REPOSITORY_READ)
+            order.add(READ_NOTES_REPOSITORY)
             return actual
         }
 
@@ -122,7 +131,7 @@ private interface FakeNoteListRepository : NotesRepository.ReadList {
     }
 }
 
-private interface FakeNoteListLiveDataWrapper : NoteListLiveDataWrapper.UpdateListAndRead {
+private interface FakeNoteListLiveDataWrapper : NoteListLiveDataWrapper.Mutable {
 
     fun check(expected: List<NoteUi>)
 
@@ -134,6 +143,10 @@ private interface FakeNoteListLiveDataWrapper : NoteListLiveDataWrapper.UpdateLi
             actual.clear()
             actual.addAll(notes)
             order.add(UPDATE_NOTES_LIVEDATA)
+        }
+
+        override fun liveData(): LiveData<List<NoteUi>> {
+            throw IllegalStateException("Not used")
         }
 
         override fun check(expected: List<NoteUi>) {

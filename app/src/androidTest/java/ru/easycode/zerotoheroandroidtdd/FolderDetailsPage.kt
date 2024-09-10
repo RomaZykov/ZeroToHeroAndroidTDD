@@ -1,12 +1,17 @@
 package ru.easycode.zerotoheroandroidtdd
 
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.*
-import androidx.test.espresso.assertion.ViewAssertions.*
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withParent
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.hamcrest.CoreMatchers.allOf
 
@@ -52,11 +57,12 @@ class FolderDetailsPage {
     }
 
     fun checkNote(position: Int, title: String) {
+        val noteLinearLayout: Int = R.id.noteLinearLayout
         onView(
             allOf(
                 isAssignableFrom(TextView::class.java),
-                withParent(withId(rootId)),
-                withParent(isAssignableFrom(ConstraintLayout::class.java)),
+                withParent(isAssignableFrom(LinearLayout::class.java)),
+                withParent(withId(noteLinearLayout)),
                 recyclerViewMatcher.atPosition(position, R.id.noteTitleTextView)
             )
         ).check(matches(withText(title)))
@@ -75,11 +81,13 @@ class FolderDetailsPage {
     }
 
     fun clickNote(position: Int) {
+        val noteLinearLayout: Int = R.id.noteLinearLayout
         onView(
             allOf(
-                withParent(withId(rootId)),
-                withParent(isAssignableFrom(ConstraintLayout::class.java)),
-                recyclerViewMatcher.atPosition(position)
+                isAssignableFrom(TextView::class.java),
+                withParent(withId(noteLinearLayout)),
+                withParent(isAssignableFrom(LinearLayout::class.java)),
+                recyclerViewMatcher.atPosition(position, R.id.noteTitleTextView)
             )
         ).perform(click())
     }

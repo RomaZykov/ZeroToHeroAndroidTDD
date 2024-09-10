@@ -1,5 +1,6 @@
 package ru.easycode.zerotoheroandroidtdd.note.edit
 
+import androidx.lifecycle.LiveData
 import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -9,7 +10,13 @@ import ru.easycode.zerotoheroandroidtdd.core.FakeClear.Companion.CLEAR
 import ru.easycode.zerotoheroandroidtdd.core.FakeNavigation
 import ru.easycode.zerotoheroandroidtdd.core.FakeNavigation.Companion.NAVIGATE
 import ru.easycode.zerotoheroandroidtdd.core.Order
+import ru.easycode.zerotoheroandroidtdd.core.Screen
+import ru.easycode.zerotoheroandroidtdd.folder.core.FolderLiveDataWrapper
+import ru.easycode.zerotoheroandroidtdd.note.NoteUi
+import ru.easycode.zerotoheroandroidtdd.note.core.NoteListLiveDataWrapper
+import ru.easycode.zerotoheroandroidtdd.note.core.NoteLiveDataWrapper
 import ru.easycode.zerotoheroandroidtdd.note.core.NotesRepository
+import ru.easycode.zerotoheroandroidtdd.note.data.MyNote
 
 class EditNoteViewModelTest {
 
@@ -34,7 +41,7 @@ class EditNoteViewModelTest {
         viewModel = EditNoteViewModel(
             folderLiveDataWrapper = folderLiveDataWrapper,
             noteLiveDataWrapper = noteLiveDataWrapper,
-            noteListLiveDataWrapper = noteLiveDataWrapper,
+            noteListLiveDataWrapper = noteListLiveDataWrapper,
             repository = repository,
             navigation = navigation,
             clear = clear,
@@ -164,7 +171,7 @@ private interface FakeEditNoteRepository : NotesRepository.Edit {
     }
 }
 
-private interface FakeNoteListLiveDataWrapper : NoteListLiveDataWrapper.Update {
+private interface FakeNoteListLiveDataWrapper : NoteListLiveDataWrapper.UpdateListAndRead {
 
     fun check(expectedNoteId: Long, expectedNewText: String)
 
@@ -182,6 +189,14 @@ private interface FakeNoteListLiveDataWrapper : NoteListLiveDataWrapper.Update {
             actualId = noteId
             actualText = newText
             order.add(NOTES_LIVE_DATA_UPDATE)
+        }
+
+        override fun update(list: List<NoteUi>) {
+            throw IllegalStateException("Not used")
+        }
+
+        override fun liveData(): LiveData<List<NoteUi>> {
+            throw IllegalStateException("Not used")
         }
     }
 }
