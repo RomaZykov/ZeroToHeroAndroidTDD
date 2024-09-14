@@ -3,8 +3,10 @@ package ru.easycode.zerotoheroandroidtdd
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,12 +36,18 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun VisibleTextWithButton() {
-    var visible by rememberSaveable { mutableStateOf(false) }
-    Text(
-        modifier = Modifier.clickable {
-            visible = true
-        }, text = if (visible) {
-            "That's right!"
-        } else "Click me!"
-    )
+    var counter by rememberSaveable { mutableStateOf("0") }
+    val count = Count.Base(counter.toInt(), 1)
+    Text(counter)
+    Button(
+        onClick = {
+            val result = count.increment()
+            counter = result.toString()
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        Text("increment")
+    }
 }
